@@ -1137,6 +1137,1128 @@
     </style>
   </head>
   <body class="bg-neutral-900">
+<script>// Klar Navigation — Interactions
+(function() {
+  const toggle = document.getElementById('klarNavToggle');
+  const menu = document.getElementById('klarMobileMenu');
+  const header = document.querySelector('.klar-nav-header');
+  const dropdowns = document.querySelectorAll('.klar-nav__dropdown');
+
+  // Mobile toggle
+  if (toggle && menu) {
+    toggle.addEventListener('click', function() {
+      const isOpen = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isOpen);
+      menu.classList.toggle('is-open');
+      document.body.style.overflow = !isOpen ? 'hidden' : '';
+    });
+
+    // Close on link click
+    menu.querySelectorAll('.klar-nav__mobile-link').forEach(function(link) {
+      link.addEventListener('click', function() {
+        toggle.setAttribute('aria-expanded', 'false');
+        menu.classList.remove('is-open');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+
+  // Desktop dropdown
+  dropdowns.forEach(function(dd) {
+    const trigger = dd.querySelector('.klar-nav__dropdown-trigger');
+    let closeTimeout;
+
+    if (trigger) {
+      trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isOpen = dd.classList.contains('is-open');
+        // Close all dropdowns first
+        dropdowns.forEach(function(d) { d.classList.remove('is-open'); });
+        if (!isOpen) dd.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', !isOpen);
+      });
+
+      // Hover open/close for desktop
+      dd.addEventListener('mouseenter', function() {
+        clearTimeout(closeTimeout);
+        dropdowns.forEach(function(d) { d.classList.remove('is-open'); });
+        dd.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+      });
+
+      dd.addEventListener('mouseleave', function() {
+        closeTimeout = setTimeout(function() {
+          dd.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }, 150);
+      });
+    }
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener('click', function() {
+    dropdowns.forEach(function(dd) {
+      dd.classList.remove('is-open');
+      var t = dd.querySelector('.klar-nav__dropdown-trigger');
+      if (t) t.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Scroll detection
+  if (header) {
+    var ticking = false;
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        requestAnimationFrame(function() {
+          if (window.scrollY > 20) {
+            header.classList.add('is-scrolled');
+          } else {
+            header.classList.remove('is-scrolled');
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+  }
+})();</script>
+<style>/* ===== Klar Navigation — Refined Editorial ===== */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+.klar-nav-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  animation: klarNavSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes klarNavSlideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.klar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  height: 64px;
+  background: rgba(23, 23, 23, 0.7);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid rgba(64, 64, 64, 0.3);
+  position: relative;
+}
+
+/* Logo */
+.klar-nav__logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.klar-nav__logo-link:hover {
+  opacity: 0.8;
+}
+
+.klar-nav__logo-svg {
+  width: 100px;
+  height: auto;
+}
+
+/* Desktop links */
+.klar-nav__links-desktop {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .klar-nav__links-desktop {
+    display: flex;
+  }
+}
+
+.klar-nav__link {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: #a3a3a3;
+  text-decoration: none;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.01em;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.klar-nav__link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.klar-nav__link--active {
+  color: #ffffff;
+}
+
+.klar-nav__link--active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.klar-nav__chevron {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0.5;
+}
+
+/* Dropdown */
+.klar-nav__dropdown {
+  position: relative;
+}
+
+.klar-nav__dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+  z-index: 200;
+}
+
+.klar-nav__dropdown.is-open .klar-nav__dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.klar-nav__dropdown.is-open .klar-nav__chevron {
+  transform: rotate(180deg);
+}
+
+.klar-nav__dropdown-inner {
+  background: rgba(30, 30, 30, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(64, 64, 64, 0.4);
+  border-radius: 12px;
+  padding: 6px;
+  min-width: 260px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.02) inset;
+}
+
+.klar-nav__dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.klar-nav__dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.klar-nav__dropdown-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(34, 197, 94, 0.08);
+  color: #22c55e;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.klar-nav__dropdown-label {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.3;
+}
+
+.klar-nav__dropdown-desc {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: #737373;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+/* Right side */
+.klar-nav__right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.klar-nav__status {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (min-width: 1024px) {
+  .klar-nav__status {
+    display: flex;
+  }
+}
+
+.klar-nav__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: klarPulse 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes klarPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+}
+
+.klar-nav__status-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  color: #737373;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.klar-nav__cta {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1.1rem;
+  background: #22c55e;
+  color: #0a0a0a;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .klar-nav__cta {
+    display: inline-flex;
+  }
+}
+
+.klar-nav__cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.klar-nav__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+}
+
+.klar-nav__cta:hover::before {
+  opacity: 1;
+}
+
+.klar-nav__cta-arrow {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.klar-nav__cta:hover .klar-nav__cta-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Mobile toggle */
+.klar-nav__mobile-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 768px) {
+  .klar-nav__mobile-toggle {
+    display: none;
+  }
+}
+
+.klar-nav__hamburger {
+  width: 20px;
+  height: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.klar-nav__hamburger-line {
+  display: block;
+  width: 100%;
+  height: 1.5px;
+  background: #ffffff;
+  border-radius: 2px;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
+}
+
+.klar-nav__hamburger-line--2 {
+  width: 60%;
+  margin-left: auto;
+}
+
+/* Hamburger open state */
+.klar-nav__mobile-toggle[aria-expanded="true"] .klar-nav__hamburger-line--1 {
+  transform: translateY(6.25px) rotate(45deg);
+}
+
+.klar-nav__mobile-toggle[aria-expanded="true"] .klar-nav__hamburger-line--2 {
+  opacity: 0;
+  width: 100%;
+}
+
+.klar-nav__mobile-toggle[aria-expanded="true"] .klar-nav__hamburger-line--3 {
+  transform: translateY(-6.25px) rotate(-45deg);
+}
+
+/* Mobile menu */
+.klar-nav__mobile-menu {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 10, 0.97);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
+  overflow-y: auto;
+}
+
+.klar-nav__mobile-menu.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+@media (min-width: 768px) {
+  .klar-nav__mobile-menu {
+    display: none !important;
+  }
+}
+
+.klar-nav__mobile-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px);
+}
+
+.klar-nav__mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid rgba(64, 64, 64, 0.25);
+  text-decoration: none;
+  font-family: 'Instrument Serif', serif;
+  font-size: 2rem;
+  color: #737373;
+  transition: color 0.2s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.klar-nav__mobile-menu.is-open .klar-nav__mobile-link {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.klar-nav__mobile-menu.is-open .klar-nav__mobile-link:nth-child(1) { transition-delay: 0.05s; }
+.klar-nav__mobile-menu.is-open .klar-nav__mobile-link:nth-child(2) { transition-delay: 0.1s; }
+.klar-nav__mobile-menu.is-open .klar-nav__mobile-link:nth-child(3) { transition-delay: 0.15s; }
+.klar-nav__mobile-menu.is-open .klar-nav__mobile-link:nth-child(4) { transition-delay: 0.2s; }
+
+.klar-nav__mobile-link:hover,
+.klar-nav__mobile-link--active {
+  color: #ffffff;
+}
+
+.klar-nav__mobile-link-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: #525252;
+  min-width: 1.5rem;
+}
+
+.klar-nav__mobile-link--active .klar-nav__mobile-link-num {
+  color: #22c55e;
+}
+
+.klar-nav__mobile-footer {
+  margin-top: auto;
+  padding-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: 0.25s;
+}
+
+.klar-nav__mobile-menu.is-open .klar-nav__mobile-footer {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.klar-nav__mobile-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: #737373;
+}
+
+.klar-nav__cta--mobile {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.7rem 1.5rem;
+  font-size: 0.88rem;
+  border-radius: 9999px;
+}
+
+/* Scroll state: more compact + stronger blur */
+.klar-nav-header.is-scrolled .klar-nav {
+  background: rgba(17, 17, 17, 0.85);
+  border-bottom-color: rgba(64, 64, 64, 0.5);
+}</style>
+<!-- ========== HEADER ========== -->
+<header class="klar-nav-header" data-klar-block-name="navigation-1">
+  <nav class="klar-nav" aria-label="Global">
+    <!-- Left: Logo -->
+    <div class="klar-nav__logo-wrap">
+      <a class="klar-nav__logo-link" href="/" aria-label="Preline">
+        <svg class="klar-nav__logo-svg" width="116" height="32" viewBox="0 0 116 32" fill="none" xmlns="http://www.w3.org/2000/svg" data-klar-no-default-editing="">
+          <path d="M33.5696 30.8182V11.3182H37.4474V13.7003H37.6229C37.7952 13.3187 38.0445 12.9309 38.3707 12.5369C38.7031 12.1368 39.134 11.8045 39.6634 11.5398C40.1989 11.2689 40.8636 11.1335 41.6577 11.1335C42.6918 11.1335 43.6458 11.4044 44.5199 11.946C45.3939 12.4815 46.0926 13.291 46.6158 14.3743C47.139 15.4515 47.4006 16.8026 47.4006 18.4276C47.4006 20.0095 47.1451 21.3452 46.6342 22.4347C46.1295 23.518 45.4401 24.3397 44.5661 24.8999C43.6982 25.4538 42.7256 25.7308 41.6484 25.7308C40.8852 25.7308 40.2358 25.6046 39.7003 25.3523C39.1709 25.0999 38.737 24.7829 38.3984 24.4013C38.0599 24.0135 37.8014 23.6226 37.6229 23.2287H37.5028V30.8182H33.5696ZM37.4197 18.4091C37.4197 19.2524 37.5367 19.9879 37.7706 20.6158C38.0045 21.2436 38.343 21.733 38.7862 22.0838C39.2294 22.4285 39.768 22.6009 40.402 22.6009C41.0421 22.6009 41.5838 22.4254 42.027 22.0746C42.4702 21.7176 42.8056 21.2251 43.0334 20.5973C43.2673 19.9633 43.3842 19.2339 43.3842 18.4091C43.3842 17.5904 43.2704 16.8703 43.0426 16.2486C42.8149 15.6269 42.4794 15.1406 42.0362 14.7898C41.593 14.4389 41.0483 14.2635 40.402 14.2635C39.7618 14.2635 39.2202 14.4328 38.777 14.7713C38.34 15.1098 38.0045 15.59 37.7706 16.2116C37.5367 16.8333 37.4197 17.5658 37.4197 18.4091ZM49.2427 25.5V11.3182H53.0559V13.7926H53.2037C53.4622 12.9124 53.8961 12.2476 54.5055 11.7983C55.1149 11.3428 55.8166 11.1151 56.6106 11.1151C56.8076 11.1151 57.02 11.1274 57.2477 11.152C57.4754 11.1766 57.6755 11.2105 57.8478 11.2536V14.7436C57.6632 14.6882 57.4077 14.639 57.0815 14.5959C56.7553 14.5528 56.4567 14.5312 56.1859 14.5312C55.6073 14.5312 55.0903 14.6574 54.6348 14.9098C54.1854 15.156 53.8284 15.5007 53.5638 15.9439C53.3052 16.3871 53.176 16.898 53.176 17.4766V25.5H49.2427ZM64.9043 25.777C63.4455 25.777 62.1898 25.4815 61.1373 24.8906C60.0909 24.2936 59.2845 23.4503 58.7182 22.3608C58.1519 21.2652 57.8688 19.9695 57.8688 18.4737C57.8688 17.0149 58.1519 15.7346 58.7182 14.6328C59.2845 13.531 60.0816 12.6723 61.1096 12.0568C62.1437 11.4413 63.3563 11.1335 64.7474 11.1335C65.683 11.1335 66.5539 11.2843 67.3603 11.5859C68.1728 11.8814 68.8806 12.3277 69.4839 12.9247C70.0932 13.5218 70.5672 14.2727 70.9057 15.1776C71.2443 16.0762 71.4135 17.1288 71.4135 18.3352V19.4155H59.4384V16.978H67.7111C67.7111 16.4117 67.588 15.91 67.3418 15.473C67.0956 15.036 66.754 14.6944 66.317 14.4482C65.8861 14.1958 65.3844 14.0696 64.812 14.0696C64.2149 14.0696 63.6856 14.2081 63.2239 14.4851C62.7684 14.7559 62.4114 15.1222 62.1529 15.5838C61.8944 16.0393 61.762 16.5471 61.7559 17.1072V19.4247C61.7559 20.1264 61.8851 20.7327 62.1437 21.2436C62.4083 21.7545 62.7807 22.1484 63.2608 22.4254C63.741 22.7024 64.3103 22.8409 64.9689 22.8409C65.406 22.8409 65.8061 22.7794 66.1692 22.6562C66.5324 22.5331 66.8432 22.3485 67.1018 22.1023C67.3603 21.8561 67.5572 21.5545 67.6927 21.1974L71.3304 21.4375C71.1458 22.3116 70.7672 23.0748 70.1948 23.7273C69.6285 24.3736 68.896 24.8783 67.9974 25.2415C67.1048 25.5985 66.0738 25.777 64.9043 25.777ZM77.1335 6.59091V25.5H73.2003V6.59091H77.1335ZM79.5043 25.5V11.3182H83.4375V25.5H79.5043ZM81.4801 9.49006C80.8954 9.49006 80.3937 9.29616 79.9752 8.90838C79.5628 8.51444 79.3566 8.04356 79.3566 7.49574C79.3566 6.95407 79.5628 6.48935 79.9752 6.10156C80.3937 5.70762 80.8954 5.51065 81.4801 5.51065C82.0649 5.51065 82.5635 5.70762 82.9759 6.10156C83.3944 6.48935 83.6037 6.95407 83.6037 7.49574C83.6037 8.04356 83.3944 8.51444 82.9759 8.90838C82.5635 9.29616 82.0649 9.49006 81.4801 9.49006ZM89.7415 17.3011V25.5H85.8083V11.3182H89.5569V13.8203H89.723C90.037 12.9955 90.5632 12.343 91.3019 11.8629C92.0405 11.3767 92.9361 11.1335 93.9887 11.1335C94.9735 11.1335 95.8322 11.349 96.5647 11.7798C97.2971 12.2107 97.8665 12.8262 98.2728 13.6264C98.679 14.4205 98.8821 15.3684 98.8821 16.4702V25.5H94.9489V17.1719C94.9551 16.304 94.7335 15.6269 94.2841 15.1406C93.8348 14.6482 93.2162 14.402 92.4283 14.402C91.8989 14.402 91.4311 14.5159 91.0249 14.7436C90.6248 14.9714 90.3109 15.3037 90.0831 15.7408C89.8615 16.1716 89.7477 16.6918 89.7415 17.3011ZM107.665 25.777C106.206 25.777 104.951 25.4815 103.898 24.8906C102.852 24.2936 102.045 23.4503 101.479 22.3608C100.913 21.2652 100.63 19.9695 100.63 18.4737C100.63 17.0149 100.913 15.7346 101.479 14.6328C102.045 13.531 102.842 12.6723 103.87 12.0568C104.905 11.4413 106.117 11.1335 107.508 11.1335C108.444 11.1335 109.315 11.2843 110.121 11.5859C110.934 11.8814 111.641 12.3277 112.245 12.9247C112.854 13.5218 113.328 14.2727 113.667 15.1776C114.005 16.0762 114.174 17.1288 114.174 18.3352V19.4155H102.199V16.978H110.472C110.472 16.4117 110.349 15.91 110.103 15.473C109.856 15.036 109.515 14.6944 109.078 14.4482C108.647 14.1958 108.145 14.0696 107.573 14.0696C106.976 14.0696 106.446 14.2081 105.985 14.4851C105.529 14.7559 105.172 15.1222 104.914 15.5838C104.655 16.0393 104.523 16.5471 104.517 17.1072V19.4247C104.517 20.1264 104.646 20.7327 104.905 21.2436C105.169 21.7545 105.542 22.1484 106.022 22.4254C106.502 22.7024 107.071 22.8409 107.73 22.8409C108.167 22.8409 108.567 22.7794 108.93 22.6562C109.293 22.5331 109.604 22.3485 109.863 22.1023C110.121 21.8561 110.318 21.5545 110.454 21.1974L114.091 21.4375C113.907 22.3116 113.528 23.0748 112.956 23.7273C112.389 24.3736 111.657 24.8783 110.758 25.2415C109.866 25.5985 108.835 25.777 107.665 25.777Z" fill="white"></path>
+          <path d="M1 29.5V16.5C1 9.87258 6.37258 4.5 13 4.5C19.6274 4.5 25 9.87258 25 16.5C25 23.1274 19.6274 28.5 13 28.5H12" stroke="white" stroke-width="2"></path>
+          <path d="M5 29.5V16.66C5 12.1534 8.58172 8.5 13 8.5C17.4183 8.5 21 12.1534 21 16.66C21 21.1666 17.4183 24.82 13 24.82H12" stroke="white" stroke-width="2"></path>
+          <circle cx="13" cy="16.5214" r="5" fill="white"></circle>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Center: Links (desktop) -->
+    <div class="klar-nav__links-desktop">
+      <a href="/" class="klar-nav__link klar-nav__link--active">Home</a>
+      <a href="approach.html" class="klar-nav__link">Approach</a>
+      <div class="klar-nav__dropdown">
+        <button class="klar-nav__link klar-nav__dropdown-trigger" aria-expanded="false">
+          About
+          <svg class="klar-nav__chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="klar-nav__dropdown-menu">
+          <div class="klar-nav__dropdown-inner">
+            <a href="#" class="klar-nav__dropdown-item">
+              <span class="klar-nav__dropdown-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+              </span>
+              <span>
+                <span class="klar-nav__dropdown-label">Our Team</span>
+                <span class="klar-nav__dropdown-desc">Meet the people behind the work</span>
+              </span>
+            </a>
+            <a href="#" class="klar-nav__dropdown-item">
+              <span class="klar-nav__dropdown-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </span>
+              <span>
+                <span class="klar-nav__dropdown-label">Our Story</span>
+                <span class="klar-nav__dropdown-desc">How we got to where we are</span>
+              </span>
+            </a>
+            <a href="#" class="klar-nav__dropdown-item">
+              <span class="klar-nav__dropdown-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </span>
+              <span>
+                <span class="klar-nav__dropdown-label">Downloads</span>
+                <span class="klar-nav__dropdown-desc">Brand assets and resources</span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <a href="contact.html" class="klar-nav__link">Contact</a>
+    </div>
+
+    <!-- Right: CTA + Status -->
+    <div class="klar-nav__right">
+      <div class="klar-nav__status">
+        <span class="klar-nav__status-dot"></span>
+        <span class="klar-nav__status-text">Available for projects</span>
+      </div>
+      <a class="klar-nav__cta" href="#contact">
+        Let's talk
+        <svg class="klar-nav__cta-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+      </a>
+    </div>
+
+    <!-- Mobile toggle -->
+    <button class="klar-nav__mobile-toggle" id="klarNavToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span class="klar-nav__hamburger">
+        <span class="klar-nav__hamburger-line klar-nav__hamburger-line--1"></span>
+        <span class="klar-nav__hamburger-line klar-nav__hamburger-line--2"></span>
+        <span class="klar-nav__hamburger-line klar-nav__hamburger-line--3"></span>
+      </span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="klar-nav__mobile-menu" id="klarMobileMenu">
+    <div class="klar-nav__mobile-inner">
+      <a href="/" class="klar-nav__mobile-link klar-nav__mobile-link--active">
+        <span class="klar-nav__mobile-link-num">01</span>
+        Home
+      </a>
+      <a href="approach.html" class="klar-nav__mobile-link">
+        <span class="klar-nav__mobile-link-num">02</span>
+        Approach
+      </a>
+      <a href="#" class="klar-nav__mobile-link">
+        <span class="klar-nav__mobile-link-num">03</span>
+        About
+      </a>
+      <a href="contact.html" class="klar-nav__mobile-link">
+        <span class="klar-nav__mobile-link-num">04</span>
+        Contact
+      </a>
+      <div class="klar-nav__mobile-footer">
+        <div class="klar-nav__mobile-status">
+          <span class="klar-nav__status-dot"></span>
+          <span>Available for new projects</span>
+        </div>
+        <a class="klar-nav__cta klar-nav__cta--mobile" href="#contact">
+          Start a project
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- ========== END HEADER ========== -->
+<script>// Hero header number counting animation
+(function() {
+  const heroCounters = document.querySelectorAll('[data-hero-count]');
+  if (!heroCounters.length) return;
+
+  const animateCounter = (el) => {
+    const target = parseInt(el.getAttribute('data-hero-count'), 10);
+    const duration = 2000;
+    const startTime = performance.now();
+    const easeOutExpo = (t) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+
+    function update(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutExpo(progress);
+      const current = Math.round(easedProgress * target);
+      el.textContent = current.toLocaleString();
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    }
+    requestAnimationFrame(update);
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Delay to sync with fade-in animations
+        setTimeout(() => {
+          animateCounter(entry.target);
+        }, 900);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  heroCounters.forEach(counter => observer.observe(counter));
+})();</script>
+<style>/* ===== Hero Header Styles ===== */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+/* Background grain texture */
+.hero-header-bg-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Glow orbs */
+.hero-header-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-header-glow--1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 70%);
+  top: -200px;
+  right: -100px;
+  animation: heroGlowFloat1 12s ease-in-out infinite;
+}
+
+.hero-header-glow--2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 0, 0.04) 0%, transparent 70%);
+  bottom: -100px;
+  left: -50px;
+  animation: heroGlowFloat2 15s ease-in-out infinite;
+}
+
+@keyframes heroGlowFloat1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-40px, 30px); }
+}
+
+@keyframes heroGlowFloat2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30px, -20px); }
+}
+
+/* Eyebrow */
+.hero-header-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 2rem;
+  animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
+}
+
+.hero-header-eyebrow__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  display: inline-block;
+  animation: heroPulse 2.5s ease-in-out infinite;
+}
+
+.hero-header-eyebrow__text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #a3a3a3;
+}
+
+/* Title */
+.hero-header-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  line-height: 1.05;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.hero-header-title__line {
+  display: block;
+}
+
+.hero-header-title__line--1 {
+  animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.2s;
+}
+
+.hero-header-title__line--2 {
+  animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.35s;
+}
+
+.hero-header-title__line--3 {
+  animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.5s;
+}
+
+.hero-header-title__highlight {
+  font-style: italic;
+  color: #22c55e;
+  position: relative;
+}
+
+.hero-header-title__highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 0.05em;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #22c55e;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: heroLineExpand 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 1s;
+}
+
+/* Description */
+.hero-header-description {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #a3a3a3;
+  font-weight: 300;
+  animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.6s;
+}
+
+/* CTA Row */
+.hero-header-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.75s;
+}
+
+.hero-header-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.8rem;
+  background-color: #22c55e;
+  color: #171717;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-header-cta-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hero-header-cta-primary:hover::before {
+  opacity: 1;
+}
+
+.hero-header-cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(34, 197, 94, 0.25);
+}
+
+.hero-header-cta-primary__arrow {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-header-cta-primary:hover .hero-header-cta-primary__arrow {
+  transform: translateX(4px);
+}
+
+.hero-header-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #a3a3a3;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  padding: 0.85rem 0.5rem;
+}
+
+.hero-header-cta-secondary:hover {
+  color: #ffffff;
+}
+
+.hero-header-cta-secondary__arrow {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-header-cta-secondary:hover .hero-header-cta-secondary__arrow {
+  transform: translateY(3px);
+}
+
+/* Metrics */
+.hero-header-metrics {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 4rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid rgba(64, 64, 64, 0.5);
+  animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.9s;
+}
+
+.hero-header-metrics__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+}
+
+.hero-header-metrics__number {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2.2rem;
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.hero-header-metrics__plus {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.4rem;
+  color: #22c55e;
+  line-height: 1;
+}
+
+.hero-header-metrics__label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  color: #737373;
+  width: 100%;
+  margin-top: 0.3rem;
+  letter-spacing: 0.02em;
+}
+
+.hero-header-metrics__divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(64, 64, 64, 0.5);
+  flex-shrink: 0;
+}
+
+/* Scroll indicator */
+.hero-header-scroll {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 10;
+  animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 1.2s;
+}
+
+.hero-header-scroll__line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, #22c55e, transparent);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-header-scroll__line::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, #22c55e, transparent);
+  animation: heroScrollLine 2s ease-in-out infinite;
+}
+
+/* Keyframes */
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroLineExpand {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes heroPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+@keyframes heroScrollLine {
+  0% { top: -100%; }
+  100% { top: 200%; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-header-metrics {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .hero-header-metrics__divider {
+    width: 40px;
+    height: 1px;
+  }
+
+  .hero-header-cta-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .hero-header-scroll {
+    display: none;
+  }
+}</style>
+<!-- Hero Header -->
+<div class="bg-neutral-900 relative overflow-hidden" data-klar-block-name="header-1">
+  <!-- Atmospheric background elements -->
+  <div class="hero-header-bg-grain"></div>
+  <div class="hero-header-glow hero-header-glow--1"></div>
+  <div class="hero-header-glow hero-header-glow--2"></div>
+  
+  <div class="max-w-5xl mx-auto px-4 xl:px-0 pt-16 lg:pt-28 pb-16 lg:pb-24 relative z-10">
+    <!-- Eyebrow -->
+    <div class="hero-header-eyebrow">
+      <span class="hero-header-eyebrow__dot"></span>
+      <span class="hero-header-eyebrow__text">Digital Agency — Est. 2019</span>
+    </div>
+
+    <!-- Main heading -->
+    <h1 class="hero-header-title">
+      <span class="hero-header-title__line hero-header-title__line--1">We build digital</span>
+      <span class="hero-header-title__line hero-header-title__line--2">
+        <span class="hero-header-title__highlight">experiences</span> that
+      </span>
+      <span class="hero-header-title__line hero-header-title__line--3">move people forward</span>
+    </h1>
+
+    <!-- Description -->
+    <div class="max-w-2xl mt-8">
+      <p class="hero-header-description">
+        A creative hub where imagination meets craftsmanship to transform ideas into tangible realities. We specialize in turning conceptual visions into concrete forms through design, artistry, and technological innovation.
+      </p>
+    </div>
+
+    <!-- CTA Row -->
+    <div class="hero-header-cta-row">
+      <a class="hero-header-cta-primary group" href="#contact">
+        <span>Start a project</span>
+        <svg class="hero-header-cta-primary__arrow" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="m12 5 7 7-7 7"></path>
+        </svg>
+      </a>
+      <a class="hero-header-cta-secondary group" href="#work">
+        <span>View our work</span>
+        <svg class="hero-header-cta-secondary__arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m6 9 6 6 6-6"></path>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Metric strip -->
+    <div class="hero-header-metrics">
+      <div class="hero-header-metrics__item">
+        <span class="hero-header-metrics__number" data-hero-count="150">0</span>
+        <span class="hero-header-metrics__plus">+</span>
+        <span class="hero-header-metrics__label">Projects delivered</span>
+      </div>
+      <div class="hero-header-metrics__divider"></div>
+      <div class="hero-header-metrics__item">
+        <span class="hero-header-metrics__number" data-hero-count="12">0</span>
+        <span class="hero-header-metrics__label">Years of experience</span>
+      </div>
+      <div class="hero-header-metrics__divider"></div>
+      <div class="hero-header-metrics__item">
+        <span class="hero-header-metrics__number" data-hero-count="98">0</span>
+        <span class="hero-header-metrics__plus">%</span>
+        <span class="hero-header-metrics__label">Client satisfaction</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="hero-header-scroll">
+    <div class="hero-header-scroll__line"></div>
+  </div>
+</div>
+<!-- End Hero Header -->
     <!-- ========== HEADER ========== -->
     <header class="sticky top-4 inset-x-0 flex flex-wrap md:justify-start md:flex-nowrap z-50 w-full" data-klar-block-name="navigation-1">
       <nav class="relative max-w-[66rem] w-full bg-neutral-800 rounded-[28px] py-3 ps-5 pe-2 md:flex md:items-center md:justify-between md:py-0 mx-2 lg:mx-auto" aria-label="Global">
